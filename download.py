@@ -15,21 +15,33 @@ prefs = {
     "safebrowsing.enabled": True
 }
 options.add_experimental_option("prefs", prefs)
+options.add_argument("--start-maximized")
 
 # Launch browser
 driver = webdriver.Chrome(options=options)
 driver.get("https://the-internet.herokuapp.com/download")
 
-time.sleep(2)  # wait for page load
+time.sleep(2)  # Wait for page to load
 
-# ✅ Locate the specific file link by text and click
-file_name = "IMG-20170724-WA0109.jpg"
+# ✅ Print all available file links
+links = driver.find_elements(By.TAG_NAME, "a")
+file_list = [link.text for link in links if link.get_attribute("href") and link.text.endswith(('.txt', '.jpg', '.png', '.pdf', '.csv'))]
+
+if not file_list:
+    print("❌ No downloadable files found.")
+    driver.quit()
+    exit()
+
+# ✅ Choose a file from the list (first one for simplicity)
+file_name = file_list[0]
+print(f"📄 Found downloadable files: {file_list}")
+print(f"⬇️ Downloading: {file_name}")
+
+# ✅ Click to download the file
 file_link = driver.find_element(By.LINK_TEXT, file_name)
 file_link.click()
 
-print(f"✅ Download triggered for: {file_name}")
-
-# Wait for download
+# ⏳ Wait for download to finish
 time.sleep(10)
 
 # ✅ Confirm file exists
